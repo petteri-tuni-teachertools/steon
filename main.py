@@ -32,29 +32,47 @@ params = args.params
 config_dir = '/etc/steon'
 
 # ------------------------------------------------
+class CliCommand:
+    def __init__(self, cmd, params) -> None: # Find out what is this notation    
+         self.cmd = cmd
+         self.params = params
+         
+    def buildCmd(self):
+        cmd_file = config_dir + '/' + self.cmd + '.cmd'
+        file = open(cmd_file, "r")
+        self.cmdTemplate = file.read()        
+        jsondata = json.loads(self.params)
+        #print (jsondata)
+
+        theCmd = self.cmdTemplate
+        
+        for key in jsondata:               
+            prm1 = key
+            val1 = jsondata[key]
+            my_regex = r"PRM-" + re.escape(prm1)    
+            theCmd = re.sub(my_regex, val1, theCmd)
+            #print ("Command TMP: " + theCmd)
+
+        
+        self.theCmd = theCmd
+    
+    def getCmd(self):
+        return self.theCmd
+
+    def runCmd(self):
+        os.system(self.theCmd)
+
+
+# ------------------------------------------------
 
 print ("Hello server tech")
 
-cmd_file = config_dir + '/' + args.command + '.cmd'
+cmdObj = CliCommand(cmd, params)
+cmdObj.buildCmd()
+print ("Resulting command: " + cmdObj.getCmd())
+cmdObj.runCmd()
 
-file = open(cmd_file, "r")
-cmdTemplate = file.read()
 
-print ("Command: ", cmdTemplate)
 
-jsondata = json.loads(params)
-#print (jsondata)
-for key in jsondata:    
-    prm1 = key
-    val1 = jsondata[key]
-    print (prm1)
-    print (val1)
-    
-
-my_regex = r"PRM-" + re.escape(prm1)
-theCmd = re.sub(my_regex, val1, cmdTemplate)
-print ("The command:" + theCmd)
-
-os.system(theCmd)
 
 

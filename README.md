@@ -27,7 +27,7 @@ The service will be connected to a host.
 ```sudo centreon -u admin -p 'somePass3342' -a APPLYCFG -v 1   ```
 
 
-# Python code for running configurations
+# Python code for running configurations - Req Specs
 
 ## Simple
 
@@ -64,3 +64,33 @@ JSON: {subcmd: [<sub1>, <sub2>]}}
 
 Name of the file could be "xxx.cmdset". And the actual command is in "xxx.cmd".
 
+
+
+
+# Version history
+
+## 27.1.2022
+
+Supports
+* simple single command template (no nested/list of commands)
+* multiple parameters
+
+### Example
+
+Configuration
+
+```
+$ cat /etc/steon/ls-sort.cmd 
+ls -latr PRM-FILEPATH | tail -PRM-NUM
+```
+
+Execution:
+
+```
+./main.py -c ls-sort -p '{"FILEPATH":"~", "NUM":"2"}'
+
+Resulting command: ls -latr ~ | tail -2
+
+-rw-------  1 pj   pj     32503 tammi  26 20:27 .viminfo
+drwxr-xr-x 55 pj   pj      4096 tammi  26 20:27 .
+```
