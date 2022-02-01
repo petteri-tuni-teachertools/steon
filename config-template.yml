@@ -1,0 +1,15 @@
+# ------------------------------------------
+# Example configuration - copy to config.yml
+# ------------------------------------------
+
+# configdir - directory for commands templates 
+configdir: /etc/steon
+
+# Common default parameters (without PRM- prefix) for command templates. 
+# Can be overriden by parameters from command line.
+
+ADMINUSER: admin
+ADMINPW: somepass
+GENERIC-HOST: generic-active-host
+POLLER: central
+

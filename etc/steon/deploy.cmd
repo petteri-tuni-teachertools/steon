@@ -1,0 +1,1 @@
+centreon -u PRM-ADMINUSER -p PRM-ADMINPW -a APPLYCFG -v 1

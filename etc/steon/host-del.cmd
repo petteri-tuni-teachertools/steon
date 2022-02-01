@@ -1,0 +1,1 @@
+centreon -u PRM-ADMINUSER -p PRM-ADMINPW -o HOST -a DEL -v 'PRM-HOST'
