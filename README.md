@@ -1,5 +1,6 @@
-# Stecreon - Server Technologies assessment with centreon 
+# Steon - configuration automation tool
 
+Steon tool facilitates automation of monitoring tools configurations.
 
 # Command line samples for home page checks
 
