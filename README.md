@@ -98,8 +98,19 @@ drwxr-xr-x 55 pj   pj      4096 tammi  26 20:27 .
 
 ## Further development
 
+* Main configuration file to store stuff like credentials
 * Set of commands in the configuration. Command set can be given as parameter. Will be expanded to batch of several commands a per the configuration.
 * List of params support. Now: "{"PRM1": "val1", "PRM2":"val2"}. Then:  "[{"PRM1": "val1", "PRM2":"val2"},{"PRM1": "val1b", "PRM2":"val2b"}]". This will run the command (or batch of commands) multiple times for each parameter set in the list.
 * Addressing explicit files in the cmd line. Now the command template has to be in the config directory. And the params data has to be given in the cmd line. Both could be in arbitrary files.
 
+
+# Environment installation
+
+## Python and libraries
+
+```
+yum install python3
+yum install python3-simplejson
+yum install python3-pyyaml
+```
 

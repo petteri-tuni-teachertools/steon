@@ -37,24 +37,30 @@ class CliCommand:
          self.cmd = cmd
          self.params = params
          
-    def buildCmd(self):
-        cmd_file = config_dir + '/' + self.cmd + '.cmd'
-        file = open(cmd_file, "r")
-        self.cmdTemplate = file.read()        
+    def parseParams(self, cmd):
         jsondata = json.loads(self.params)
         #print (jsondata)
-
-        theCmd = self.cmdTemplate
         
         for key in jsondata:               
             prm1 = key
             val1 = jsondata[key]
             my_regex = r"PRM-" + re.escape(prm1)    
-            theCmd = re.sub(my_regex, val1, theCmd)
-            #print ("Command TMP: " + theCmd)
+            cmd = re.sub(my_regex, val1, cmd)
+            #print ("Command TMP: " + cmd)
 
-        
-        self.theCmd = theCmd
+        return cmd
+
+
+    def buildCmd(self):
+        cmd_file = config_dir + '/' + self.cmd + '.cmd'
+        file = open(cmd_file, "r")
+        self.cmdTemplate = file.read()                
+        cmd = self.cmdTemplate
+
+        if (self.params):
+            cmd = self.parseParams(cmd)
+
+        self.theCmd = cmd
     
     def getCmd(self):
         return self.theCmd
@@ -70,7 +76,11 @@ print ("Hello server tech")
 cmdObj = CliCommand(cmd, params)
 cmdObj.buildCmd()
 print ("Resulting command: " + cmdObj.getCmd())
-cmdObj.runCmd()
+if (not test):
+    print ("Run command ...")
+    cmdObj.runCmd()
+else:
+    print("TEST mode")    
 
 
 
