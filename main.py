@@ -5,7 +5,9 @@ from operator import eq
 import sys
 import re
 import os
+from jinja2 import Undefined
 import yaml
+import csv
 from distutils.util import grok_environment_error
 import simplejson as json
 
@@ -17,7 +19,7 @@ description = """
     """
 parser = argparse.ArgumentParser(description=description)
 parser.add_argument("-c", "--command", default="default",  help="Define the file that contains the command template")
-parser.add_argument("-f", "--file", default=None, help="file to read the command from. Configuration directory searched otherwise")
+parser.add_argument("-f", "--file", default=None, help="file to read the parameters from. Command line parameter -p second alternative")
 parser.add_argument("-C", "--config", default='/etc/steon/steon.conf', help="file to read the Centreon configuratin from")
 parser.add_argument("-v", "--verbose", default=0, help="verbosity level - 0(default) or 1")
 parser.add_argument("-T", "--test", default=0, help="Test only (default) or 1")
@@ -27,19 +29,40 @@ args = parser.parse_args()
 
 cmd = args.command
 test = args.test
-params = args.params
+params_json = args.params
+params_file = args.file
 
 # ------------------------------------------------
 
 config_dir = '/etc/steon'
 
 # ------------------------------------------------
-class CliCommand:
-    def __init__(self, cmd, params) -> None: # Find out what is this notation    
-         self.cmd = cmd
-         self.params = params
-         self.config_dir = config_dir
+class CsvParams:
+    def __init__(self, file) -> None:
+        self.file = file
+        print ("CSV file: " + file)
 
+        tmplist = []
+        with open(file, newline='') as csvfile:
+            self.data = csv.DictReader(csvfile)  
+            cnt = 0
+            for row in self.data:
+                tmplist.append(row)
+                cnt += 1
+                #for key in row:
+                #   print("Row " + str(cnt) + ") key: " +  key + " ,value: " + row[key])
+        self.data = tmplist
+
+    def getData(self):
+        return self.data
+        
+# ------------------------------------------------
+class CliCommand:
+    def __init__(self, cmd, params_data) -> None: # Find out what is this notation    
+         self.cmd = cmd
+         self.params_data = params_data
+         self.config_dir = config_dir
+        
          with open('config.yml', 'r') as file:
             self.config = yaml.safe_load(file)
             for key in self.config:                
@@ -58,9 +81,10 @@ class CliCommand:
         return cmd
 
     def parseParams(self, cmd):
-        jsondata = json.loads(self.params)
+        #jsondata = json.loads(self.params_data)
         #print (jsondata)
         
+        jsondata = self.params_data
         for key in jsondata:               
             prm1 = key
             val1 = jsondata[key]
@@ -76,7 +100,7 @@ class CliCommand:
         self.cmdTemplate = file.read()                
         cmd = self.cmdTemplate
 
-        if self.params:
+        if self.params_data:
             cmd = self.parseParams(cmd)
         if self.config:
             cmd = self.parseConfig(cmd)
@@ -93,15 +117,25 @@ class CliCommand:
 # ------------------------------------------------
 
 #print ("Hello server tech")
+params_data = Undefined
+params_list = []
 
-cmdObj = CliCommand(cmd, params)
-cmdObj.buildCmd()
-print ("Resulting command: " + cmdObj.getCmd())
-if (not test):
-    print ("Run command ...")
-    cmdObj.runCmd()
-else:
-    print("TEST mode")    
+if (params_file):
+    paramsObj = CsvParams("params.csv")
+    params_list = paramsObj.getData()
+elif (params_json):
+    tmp = json.loads(params_json)
+    params_list.append(tmp)
+
+for row in params_list:    
+    cmdObj = CliCommand(cmd, row)
+    cmdObj.buildCmd()
+    print ("Resulting command ----------------\n" + cmdObj.getCmd())
+    if (not test):
+        print ("Run command ...")
+        cmdObj.runCmd()
+    else:
+        print("<<< TEST mode >>>")    
 
 
 
