@@ -121,7 +121,7 @@ params_data = Undefined
 params_list = []
 
 if (params_file):
-    paramsObj = CsvParams("params.csv")
+    paramsObj = CsvParams(params_file)
     params_list = paramsObj.getData()
 elif (params_json):
     tmp = json.loads(params_json)
