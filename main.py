@@ -5,7 +5,6 @@ from operator import eq
 import sys
 import re
 import os
-from jinja2 import Undefined
 import yaml
 import csv
 from distutils.util import grok_environment_error
@@ -117,7 +116,6 @@ class CliCommand:
 # ------------------------------------------------
 
 #print ("Hello server tech")
-params_data = Undefined
 params_list = []
 
 if (params_file):
@@ -126,6 +124,8 @@ if (params_file):
 elif (params_json):
     tmp = json.loads(params_json)
     params_list.append(tmp)
+else:
+    params_list.append(None)
 
 for row in params_list:    
     cmdObj = CliCommand(cmd, row)
