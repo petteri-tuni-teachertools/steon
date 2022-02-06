@@ -3,3 +3,5 @@
 *.data
 config.yml
 tmp*
+*local
+local*
