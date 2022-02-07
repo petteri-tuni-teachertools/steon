@@ -19,7 +19,8 @@ The primary configuration file config.yml is loaded from the working directory o
 
 Content example:
 
-```configdir: templates-local
+```
+configdir: templates-local
 ADMINUSER: admin
 ADMINPW: somepassword
 GENERIC-HOST: generic-active-host
@@ -41,7 +42,8 @@ These are searched from <configdir> (can be set in config.yml). Default director
 
 Example:
 
-```# This is example command template.
+```
+# This is example command template.
 # -> To run: ./main.py -c ls-sort -f examples/params/ls-sort-data.csv 
 # -> Data/params example in examples/data/ls-sort.csv
 #
