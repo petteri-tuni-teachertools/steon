@@ -57,10 +57,12 @@ class CsvParams:
         
 # ------------------------------------------------
 class CliCommand:
-    def __init__(self, cmd, params_data) -> None: # Find out what is this notation    
-         self.cmd = cmd
-         self.params_data = params_data
-         self.config_dir = config_dir
+    def __init__(self, cmdFile, params_data) -> None: # Find out what is this notation    
+         self.cmdFile = cmdFile # Command template (can be multiple lines)
+         self.theCmd = ''       # The final command with real data will be here
+         self.printCmd = ''     # The final printable command with real data will be here (passwd hidden)
+         self.params_data = params_data # Parameters from CLI as JSON
+         self.config_dir = config_dir   # Configuration directory default - might be overriden from config file
         
          with open('config.yml', 'r') as file:
             self.config = yaml.safe_load(file)
@@ -69,17 +71,21 @@ class CliCommand:
                     self.config_dir = self.config[key]
 
          
-    def parseConfig(self, cmd):        
+    def parseConfig(self):        
+
         for key in self.config:
             prm1 = key
             val1 = self.config[key]
-            my_regex = r"PRM-" + re.escape(prm1)  
-            cmd = re.sub(my_regex, val1, cmd)
-            #print ("Command TMP: " + cmd)
+            my_regex = r"PRM-" + re.escape(prm1)            
+            if (prm1 == 'ADMINPW'):
+                self.theCmd = re.sub(my_regex, val1, self.theCmd)
+                self.printCmd = re.sub(my_regex, '*******', self.printCmd)
+            else:
+                self.theCmd = re.sub(my_regex, val1, self.theCmd)
+                self.printCmd = re.sub(my_regex, val1, self.printCmd)       
+                #print ("Command TMP: " + cmd)
 
-        return cmd
-
-    def parseParams(self, cmd):
+    def parseParams(self):
         #jsondata = json.loads(self.params_data)
         #print (jsondata)
         
@@ -87,27 +93,28 @@ class CliCommand:
         for key in jsondata:               
             prm1 = key
             val1 = jsondata[key]
-            my_regex = r"PRM-" + re.escape(prm1)  
-            cmd = re.sub(my_regex, val1, cmd)
-            #print ("Command TMP: " + cmd)
-
-        return cmd
+            my_regex = r"PRM-" + re.escape(prm1)
+            self.theCmd = re.sub(my_regex, val1, self.theCmd)
+            self.printCmd = re.sub(my_regex, val1, self.printCmd)            
+            #print ("Command TMP: " + cmd)        
 
     def buildCmd(self):
-        cmd_file = self.config_dir + '/' + self.cmd + '.cmd'
+        cmd_file = self.config_dir + '/' + self.cmdFile + '.cmd'
         file = open(cmd_file, "r")
         self.cmdTemplate = file.read()                
-        cmd = self.cmdTemplate
+        self.theCmd = self.cmdTemplate
+        self.printCmd = self.cmdTemplate
 
         if self.params_data:
-            cmd = self.parseParams(cmd)
+            self.parseParams()
         if self.config:
-            cmd = self.parseConfig(cmd)
-
-        self.theCmd = cmd
+            self.parseConfig()        
     
     def getCmd(self):
         return self.theCmd
+
+    def getPrintCmd(self):
+        return self.printCmd        
 
     def runCmd(self):
         os.system(self.theCmd)
@@ -130,7 +137,7 @@ else:
 for row in params_list:    
     cmdObj = CliCommand(cmd, row)
     cmdObj.buildCmd()
-    print ("Resulting command ----------------\n" + cmdObj.getCmd())
+    print ("Resulting command ----------------\n" + cmdObj.getPrintCmd())
     if (not test):
         print ("Run command ...")
         cmdObj.runCmd()
