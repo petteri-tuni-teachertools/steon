@@ -2,107 +2,91 @@
 
 Steon tool facilitates automation of monitoring tools configurations.
 
-# Command line samples for home page checks
+# Features
 
-Pre-requisites:
-* Host exists: "Homepages-tuni"
+* Capability to run command templates where parameters expressed as placeholders with "PRM-" prefix.
+* Command templates can be oneliners or full multiline scripts
+* Parameters that will replace the placeholders can be given 
+  * From the cli as JSON string. In this case only one parameter set supported at the moment.
+  * Using parameter file. In this case format is CSV and multiple lines corresponding multiple parameter sets is supported
+* The program will run the template command where parameter placeholders are replaced with real parameter values. If CSV file used, command will be run as many times as there are lines in the CSV file.
+* The resulting command can be printed out - either as it is or a version where admin password is obfuscated.
+* In test mode only resulting command printed out; no execution.
 
-The service will be connected to a host.
+# Primary configuration file: config.yml
 
-## Add new service: web page responds (multiple steps)
+The primary configuration file config.yml is loaded from the working directory of the command.
 
-1) Add service
+Content example:
 
-```centreon -u admin -p somePass3342 -o SERVICE -a add -v 'Homepages-Tuni;niko-TUNI-home-basic;TUNI-home-basic'  ```
-
-2) Set the check command to the service
-
-```centreon -u admin -p somePass3342 -o SERVICE -a setparam -v 'Homepages-Tuni;niko-TUNI-home-basic;check_command;tunihome_basic'  ```
-
-3) Add parameters to the service
-
-```centreon -u admin -p somePass3342 -o SERVICE -a setparam -v 'Homepages-Tuni;niko-TUNI-home-basic;check_command_arguments;!/niko.user/' ```
-
-## Load new configuration
-
-```sudo centreon -u admin -p 'somePass3342' -a APPLYCFG -v 1   ```
-
-
-# Python code for running configurations - Req Specs
-
-## Simple
-
-In the command line:
-
-./stecreon.py -C <command> -P "<parameters as JSON - key value pairs>"
-
-Here the <command> is command templated stored to a file in /etc/stecreon.
-
-For example:
-
-```
-cat /etc/steon/web.cmd
-
-centreon -u admin -p 'somePass3342' -o SERVICE -a add -v 'PRM-SVC;niko-TUNI-home-basic;TUNI-home-basic' 
+```configdir: templates-local
+ADMINUSER: admin
+ADMINPW: somepassword
+GENERIC-HOST: generic-active-host
+POLLER: central
+HOSTGROUP: Eduhou
 ```
 
-The command in the command line will provide the parameters neeeded (only one here):
+Special keys are:
+* configdir - this is where command templates reside
+* ADMINPW - the value of this can be obfuscated when printing out command
 
-```./stecreon.py -c web.cmd -p {"PTR-SVC": "Homepages-Niko-basic"}```
+Other keys are just regular parameter values. Storing them here simplifies provision of values to widely used "static" parameters. If same parameter is found in the actual parameter data, this overrides the configuration file value.
 
-## Advanced
+# Command templates
 
-Here a command can consist of sub commands.
+Given with -c cli parameter (without .cmd suffix).
 
-### Data model
+These are searched from <configdir> (can be set in config.yml). Default directory if not set in config.yml is **/etc/steon**
 
-* Command set
-  * Contains list of actual commands
+Example:
 
-Contents of the command file will include list of sub commands:
-
-JSON: {subcmd: [<sub1>, <sub2>]}}
-
-Name of the file could be "xxx.cmdset". And the actual command is in "xxx.cmd".
-
-
-
-
-# Version history
-
-## 27.1.2022
-
-Supports
-* simple single command template (no nested/list of commands)
-* multiple parameters
-
-### Example
-
-Configuration
-
-```
-$ cat /etc/steon/ls-sort.cmd 
+```# This is example command template.
+# -> To run: ./main.py -c ls-sort -f examples/params/ls-sort-data.csv 
+# -> Data/params example in examples/data/ls-sort.csv
+#
+echo '--------------------------------------------------'
+echo 'List PRM-NUM most recent files in <<PRM-FILEPATH>>'
+echo '--------------------------------------------------'
 ls -latr PRM-FILEPATH | tail -PRM-NUM
 ```
 
-Execution:
+PRM-NUM and PRM-FILEPATH are placeholders that will be replaced.
 
+# Parameters to replace placeholders in the command template
+
+## From cli
+
+Use -p cli parameter with paramers set JSON string. Example:
+
+```./main.py -c ls-sort -p {"FILEPATH": "/etc", "NUM":"7"}```
+
+Note: the PRM- prefix is omitted in the cli JSON parameter set string.
+
+## From file
+
+Use -f cli parameter with the file path. Example:
+
+```./main.py -c ls-sort -f examples/params/ls-sort-data.csv```
+
+Content of parameters file /examples/params/ls-sort-data.csv:
 ```
-./main.py -c ls-sort -p '{"FILEPATH":"~", "NUM":"2"}'
-
-Resulting command: ls -latr ~ | tail -2
-
--rw-------  1 pj   pj     32503 tammi  26 20:27 .viminfo
-drwxr-xr-x 55 pj   pj      4096 tammi  26 20:27 .
+FILEPATH,NUM
+/etc,5
+/var/log,7
 ```
 
-## Further development
+# Command line parameters
 
-* Main configuration file to store stuff like credentials
-* Set of commands in the configuration. Command set can be given as parameter. Will be expanded to batch of several commands a per the configuration.
-* List of params support. Now: "{"PRM1": "val1", "PRM2":"val2"}. Then:  "[{"PRM1": "val1", "PRM2":"val2"},{"PRM1": "val1b", "PRM2":"val2b"}]". This will run the command (or batch of commands) multiple times for each parameter set in the list.
-* Addressing explicit files in the cmd line. Now the command template has to be in the config directory. And the params data has to be given in the cmd line. Both could be in arbitrary files.
+* -c command (without ".cmd" filename suffix)
+* -p parameter keys and values as a JSON string
+* -f parameter values CSV file path; header row contains parameter keys
+* -T val - test mode, val = 1 or 99
+* -v val - verbose, val = 1 or 99
 
+Explanation for values 1 and 99:
+* 1 - print out resulting command with adminpw obfuscated (*****)
+* 99 - print out final resulting command without obfuscation
 
 # Environment installation
 
