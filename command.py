@@ -7,14 +7,14 @@ import simplejson as json
 config_dir = '/etc/steon'
 
 class CliCommand:
-    def __init__(self, cmdFile) -> None: # Find out what is this notation    
+    def __init__(self, cmdFile, mainconfig="config.yml") -> None: # Find out what is this notation    
          self.cmdFile = cmdFile # Command template (can be multiple lines)
          self.theCmd = ''       # The final command with real data will be here
          self.printCmd = ''     # The final printable command with real data will be here (passwd hidden)     
          self.config_dir = config_dir   # Configuration directory default - might be overriden from config file
          self.paramsList = []           # This contains all parameter sets as list. Each set will be run "against" the template cmd/script.
         
-         with open('config.yml', 'r') as file:
+         with open(mainconfig, 'r') as file:
             self.config = yaml.safe_load(file)
             for key in self.config:                
                 if key == 'configdir':
