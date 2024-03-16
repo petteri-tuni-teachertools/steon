@@ -7,7 +7,7 @@ import simplejson as json
 config_dir = '/etc/steon'
 
 class CliCommand:
-    def __init__(self, cmdFile, mainconfig="config.yml") -> None: # Find out what is this notation    
+    def __init__(self, cmdFile, mainconfig="config.yml", sec_config=".secret.yml") -> None: # Find out what is this notation    
          self.cmdFile = cmdFile # Command template (can be multiple lines)
          self.theCmd = ''       # The final command with real data will be here
          self.printCmd = ''     # The final printable command with real data will be here (passwd hidden)     
@@ -19,6 +19,9 @@ class CliCommand:
             for key in self.config:                
                 if key == 'configdir':
                     self.config_dir = self.config[key]
+
+         with open(sec_config, 'r') as file:
+            self.sec_config = yaml.safe_load(file)
 
          full_cmd_file = self.config_dir + '/' + self.cmdFile + '.cmd'
          file = open(full_cmd_file, "r")
@@ -40,18 +43,19 @@ class CliCommand:
                 cnt += 1                
         self.paramsList = tmplist        
     
-    def parseConfig(self):        
-        for key in self.config:
+    def parseConfig(self, data):        
+        for key in data:
             prm1 = key
-            val1 = self.config[key]
+            val1 = data[key]
             my_regex = r"PRM-" + re.escape(prm1)            
             if (prm1 == 'ADMINPW'):
                 self.theCmd = re.sub(my_regex, val1, self.theCmd)
                 self.printCmd = re.sub(my_regex, '*******', self.printCmd)
+                #print ("Command TMP: " + self.theCmd)
             else:
                 self.theCmd = re.sub(my_regex, val1, self.theCmd)
                 self.printCmd = re.sub(my_regex, val1, self.printCmd)       
-                #print ("Command TMP: " + cmd)
+                #print ("Command TMP: " + self.theCmd)
 
     def parseParams(self, params_data):               
         jsondata = params_data
@@ -70,7 +74,9 @@ class CliCommand:
         if params_set:
             self.parseParams(params_set)
         if self.config:
-            self.parseConfig()   
+            self.parseConfig(self.config)   
+        if self.sec_config:
+            self.parseConfig(self.sec_config)   
     
     def getCmd(self):
         return self.theCmd
