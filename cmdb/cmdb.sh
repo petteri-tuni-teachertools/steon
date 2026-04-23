@@ -28,8 +28,11 @@ if [ $? -eq 0 ]; then SALDO=$(($SALDO+1)); fi
 RESULT="$RESULT - $SALDO"
 
 # 5) Check for default user "ubuntu"
+if [ -e $BASEDIR/etc/passwd ]; 
+then 
 grep -q ubuntu $BASEDIR/etc/passwd
 if [ $? -ne 0 ]; then SALDO=$(($SALDO+1)); fi
+fi
 RESULT="$RESULT - $SALDO"
 
 # 6) Check for sam22 user
