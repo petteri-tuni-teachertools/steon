@@ -1,0 +1,7 @@
+# Created by cloud-init v. 25.3-0ubuntu1~24.04.1 on Thu, 12 Mar 2026 09:57:43 +0000
+
+# TAMK default user
+petteri ALL=(ALL) ALL
+
+# Monitoring user:
+sam22 ALL=(ALL) NOPASSWD:/usr/sbin/ufw

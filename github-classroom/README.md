@@ -1,3 +1,15 @@
+# ==================================================================
+
+# OBSOLETE # OBSOLETE # OBSOLETE # OBSOLETE # OBSOLETE # OBSOLETE #
+# OBSOLETE # OBSOLETE # OBSOLETE # OBSOLETE # OBSOLETE # OBSOLETE #
+# OBSOLETE # OBSOLETE # OBSOLETE # OBSOLETE # OBSOLETE # OBSOLETE #
+
+# ... see the ../gh -folder for more concise version - 24.4.2026
+
+# ==================================================================
+
+
+
 
 echo "To rename the github repos with Tuni aliases, following can be used:"
 
@@ -83,4 +95,14 @@ ID      Title                   Submission Public  Type        Deadline         
 970505  3. System scripts (v2)  false              individual  2026-05-10T06:29:00Z          https://classroom.github.com/a/e_sdM0AB  38        25           0
 ````
 
+
+# ==================================================================
+
+# OBSOLETE # OBSOLETE # OBSOLETE # OBSOLETE # OBSOLETE # OBSOLETE #
+# OBSOLETE # OBSOLETE # OBSOLETE # OBSOLETE # OBSOLETE # OBSOLETE #
+# OBSOLETE # OBSOLETE # OBSOLETE # OBSOLETE # OBSOLETE # OBSOLETE #
+
+# ... see the ../gh -folder for more concise version - 24.4.2026
+
+# ==================================================================
 
